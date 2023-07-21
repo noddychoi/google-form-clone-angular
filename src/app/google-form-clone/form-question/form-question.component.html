@@ -1,0 +1,267 @@
+<!-- <div [formGroup]="questionFormGroup" class="p-4 pt-0 pb-2">
+  <div>
+    <div class="d-flex justify-content-between">
+      <div>
+        <label class="form-label col">
+          {{ questionFormGroup.question.text }}
+          <span *ngIf="questionFormGroup.required">*</span>
+        </label>
+      </div>
+      <div>
+        <select class="form-select">
+          <option value="singleSelection">Single Selection</option>
+          <option value="multipleSelection">Multiple Selection</option>
+          <option selected value="openQuestion">Open Question</option>
+          <option selected value="titleQuestion">Title Question</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div [ngSwitch]="questionFormGroup.question.type">
+    <div *ngSwitchCase="'freeText'">
+      <div class="row">
+        <div class="col-6">
+          <input
+            class="form-control"
+            *ngIf="questionFormGroup.question.type === 'freeText'"
+            type="text"
+            [placeholder]="questionFormGroup.question.placeholder"
+          />
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'radio'">
+      <div cdkDropList (cdkDropListDropped)="dropRadioAnswer($event)">
+        <div
+          class="row"
+          *ngFor="
+            let offeredAnswer of questionFormGroup.question?.offeredAnswers;
+            last as isLast
+          "
+          cdkDrag
+        >
+          <div class="col-1">
+            <i class="material-icons text-muted">drag_indicator</i>
+          </div>
+          <div class="col">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="offeredAnswer.id"
+              />
+              <label class="form-check-label" for="offeredAnswer.id">
+                {{ offeredAnswer.value }}</label
+              >
+              <div *ngIf="offeredAnswer.remarkAnswer" class="col">
+                <input
+                  class="form-control"
+                  type="text"
+                  name="offeredAnswer.id+'remark'"
+                  placeholder="insert your remark"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngSwitchCase="'checkbox'">
+      <div cdkDropList (cdkDropListDropped)="dropRadioAnswer($event)">
+        <div
+          class="row"
+          *ngFor="
+            let offeredAnswer of questionFormGroup.question?.offeredAnswers;
+            last as isLast
+          "
+          cdkDrag
+        >
+          <div class="col-1">
+            <i class="material-icons text-muted">drag_indicator</i>
+          </div>
+          <div class="col">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="offeredAnswer.id"
+              />
+              <label class="form-check-label" for="offeredAnswer.id">
+                {{ offeredAnswer.value }}</label
+              >
+              <div *ngIf="offeredAnswer.remarkAnswer" class="col">
+                <input
+                  class="form-control"
+                  type="text"
+                  name="offeredAnswer.id+'remark'"
+                  placeholder="insert your remark"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr />
+  <div class="d-flex flex-row-reverse">
+    <div class="material-icons p-2 pt-0">delete</div>
+    <div class="material-icons p-3 pt-0">file_copy</div>
+    <div class="form-check p-2 pt-0">
+      <input class="form-check-input" type="checkbox" name="isRequired" />
+      <label class="form-check-label" for="isRequired"> mandatory</label>
+    </div>
+  </div>
+</div> -->
+<div
+  *ngIf="questionFormGroup.get('title'); then titleEle; else questionEle"
+></div>
+<ng-template #titleEle>
+  <div [formGroup]="questionFormGroup">
+    <div formGroupName="title" class="row">
+      <div class="col input-group-lg mb-1">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Insert title"
+          formControlName="text"
+        />
+      </div>
+    </div>
+    <div formGroupName="title" class="row">
+      <div class="col input-group-sm">
+        <input
+          class="form-control"
+          type="text"
+          placeholder="Description"
+          formControlName="description"
+        />
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #questionEle [formGroup]="questionFormGroup" class="pt-0 pb-2">
+  <div
+    #questionEle
+    formGroupName="question"
+    class="d-flex justify-content-between pb-2"
+  >
+    <div>
+      <!-- <input class="form-control" formControlName="text" type="text" /> -->
+      <textarea formControlName="text" class="form-control m-2"></textarea>
+    </div>
+    <div>
+      <select
+        formControlName="type"
+        class="form-select"
+        (change)="onChangeQuestionType(questionFormGroup.get('orderNo').value)"
+      >
+        <option value="singleSelection">Single Selection</option>
+        <option value="multipleSelection">Multiple Selection</option>
+        <option value="freeText">Open Question</option>
+        <option value="titleQuestion">Title Question</option>
+      </select>
+    </div>
+  </div>
+
+  <div [ngSwitch]="questionType.value" class="pt-2 pb-4">
+    <div *ngSwitchCase="'freeText'">
+      <div class="row">
+        <div class="col">
+          <input
+            class="form-control"
+            type="text"
+            placeholder="open text answer"
+            disabled
+          />
+        </div>
+      </div>
+    </div>
+
+    <div *ngSwitchCase="'singleSelection'">
+      <div
+        formGroupName="question"
+        cdkDropList
+        (cdkDropListDropped)="dropRadioAnswer($event)"
+      >
+        <div
+          formArrayName="offeredAnswers"
+          class="row"
+          *ngFor="
+            let offeredAnswer of questionFormGroup.get(
+              'question.offeredAnswers'
+            )['controls'];
+            let i = index
+          "
+          cdkDrag
+        >
+          <div class="col-1 draggable">
+            <i class="material-icons text-muted">drag_indicator</i>
+          </div>
+          <div class="col-7" [formGroupName]="i">
+            <div class="form-check">
+              <label
+                class="form-check-label"
+                [for]="'offeredAnswer' + offeredAnswer.value.orderNo"
+              >
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  (change)="onRadioCheck(offeredAnswer, i)"
+                  [name]="'offeredAnswer' + offeredAnswer.value.orderNo"
+                />
+                <textarea
+                  class="form-control"
+                  type="text"
+                  formControlName="value"
+                  placeholder="Answer value"
+                ></textarea>
+                <div
+                  *ngIf="offeredAnswer.value.remarkAnswer"
+                  class="col mt-1 mb-2"
+                >
+                  <input
+                    class="form-control"
+                    type="text"
+                    [name]="'offeredAnswerRemark' + offeredAnswer.value.orderNo"
+                    placeholder="insert your remark"
+                    disabled
+                  />
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="col-3">
+            <div class="row">
+              <a href="javascript:void(0)" (click)="addNewRadioOption(i)"
+                >Add Option</a
+              >
+              <a
+                *ngIf="!offeredAnswer.value.remarkAnswer"
+                href="javascript:void(0)"
+                (click)="onRemarkModeChange(i, true)"
+                >Add remark</a
+              >
+              <a
+                *ngIf="offeredAnswer.value.remarkAnswer"
+                href="javascript:void(0)"
+                (click)="onRemarkModeChange(i, false)"
+                >Remove remark</a
+              >
+            </div>
+          </div>
+          <div class="col-1">
+            <i
+              type="button"
+              class="material-icons text-muted pointer"
+              (click)="removeRadioAnswer(i)"
+              >close</i
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
